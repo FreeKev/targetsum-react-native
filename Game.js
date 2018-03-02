@@ -8,7 +8,7 @@ class Game extends React.Component {
     randomNumberCount: PropTypes.number.isRequired,
   };
   state = {
-    selectedNumbers: [0, 4],
+    selectedIds: [],
   };
   randomNumbers = Array
     .from({length: this.props.randomNumberCount})
@@ -18,9 +18,31 @@ class Game extends React.Component {
     .reduce((acc, curr) => acc + curr, 0);
     // shuflle random #s
   isNumberSelected = (numberIndex) => {
-    return this.state.selectedNumbers.indexOf(numberIndex) >= 0;
+    return this.state.selectedIds.indexOf(numberIndex) >= 0;
+  }
+  selectNumber = (numberIndex) => {
+    this.setState((prevState) => {
+      return { selectedIds: [...prevState.selectedIds, numberIndex],
+       }    })
+  };
+  gameStatus = () => {
+    const sumSelected = this.state.selectedIds.reduce((acc, curr) => {
+      return acc + this.randomNumbers[curr];
+    }, 0);
+    console.log(sumSelected);
+    if (sumSelected < this.target) {
+      return 'Playing';
+    }
+    if (sumSelected === this.target) {
+      return 'Won';
+    }
+    if (sumSelected > this.target) {
+      return 'Lost';
+    }
   }
   render() {
+    // this.gameStatus();
+    const gameStatus = this.gameStatus();
     return (
       <View style={styles.container}>
         <Text style={styles.target}>{this.target}</Text>
@@ -28,12 +50,15 @@ class Game extends React.Component {
         {this.randomNumbers.map((randomNumber, index) =>
           <RandomNumber
             key={index}
+            id={index}
             number={randomNumber}
-            isSelected={this.isNumberSelected(index)}
+            isDisabled={this.isNumberSelected(index)}
+            onPress={this.selectNumber}
           />
           // <Text style={styles.each} key={index}>{randomNumber}</Text>
         )}
         </View>
+        <Text>{gameStatus}</Text>
       </View>
     );
   }
